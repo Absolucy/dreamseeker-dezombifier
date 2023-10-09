@@ -1,0 +1,15 @@
+[config]
+min_version = "0.32.7"
+default_to_workspace = false
+
+[tasks.windows-x86_64]
+command = "cargo"
+args = ["auditable", "build", "--release", "--locked", "--target=x86_64-pc-windows-msvc"]
+
+[tasks.windows-i686]
+command = "cargo"
+args = ["auditable", "build", "--release", "--locked", "--target=i686-pc-windows-msvc"]
+
+[tasks.windows-aarch64]
+command = "cargo"
+args = ["auditable", "build", "--release", "--locked", "--target=aarch64-pc-windows-msvc"]

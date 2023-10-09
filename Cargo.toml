@@ -1,0 +1,39 @@
+[package]
+name = "dreamseeker-dezombifier"
+description = "A service for purging zombie DreamSeeker processes."
+version = "0.1.1"
+authors = ["Lucy <lucy@absolucy.moe>"]
+edition = "2021"
+license = "0BSD"
+repository = "https://github.com/Absolucy/dreamseeker-dezombifier"
+rust-version = "1.73.0"
+
+[dependencies]
+anyhow = "1"
+crossbeam-channel = "0.5"
+ctrlc = { version = "3", features = ["termination"] }
+fastdivide = "0.3"
+static_init = "1"
+log = { version = "0.4", features = ["std"] }
+windows = { version = "0.51", features = [
+	"Win32_Foundation",
+	"Win32_System_ProcessStatus",
+	"Win32_System_SystemInformation",
+	"Win32_System_Threading",
+	"Win32_System_Time",
+	"Win32_UI_WindowsAndMessaging",
+] }
+stfu8 = "0.2"
+scopeguard = "1"
+simple_logger = "4"
+eventlog = "0.2"
+parking_lot = "0.12"
+
+[build-dependencies]
+embed-resource = "2"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = "s"
+debug = "limited"
