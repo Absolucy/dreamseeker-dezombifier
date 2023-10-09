@@ -1,0 +1,55 @@
+[config]
+min_version = "0.32.7"
+default_to_workspace = false
+
+[tasks.windows-x86_64]
+command = "cargo"
+args = ["auditable", "build", "--release", "--locked", "--target=x86_64-pc-windows-msvc", "--no-default-features"]
+env = { RUSTFLAGS = "-C target-cpu=x86-64" }
+
+[tasks.windows-i686]
+command = "cargo"
+args = ["auditable", "build", "--release", "--locked", "--target=i686-pc-windows-msvc", "--no-default-features"]
+env = { RUSTFLAGS = "-C target-cpu=i686" }
+
+[tasks.windows-aarch64]
+command = "cargo"
+args = ["auditable", "build", "--release", "--locked", "--target=aarch64-pc-windows-msvc", "--no-default-features"]
+env = { RUSTFLAGS = "-C target-cpu=generic" }
+
+[tasks.windows-service-x86_64]
+command = "cargo"
+args = ["auditable", "build", "--release", "--locked", "--target=x86_64-pc-windows-msvc", "--features=service"]
+env = { RUSTFLAGS = "-C target-cpu=x86-64 -C target-feature=+crt-static", SOURCE_DATE_EPOCH = "1697065602" }
+
+[tasks.windows-service-i686]
+command = "cargo"
+args = ["auditable", "build", "--release", "--locked", "--target=i686-pc-windows-msvc", "--features=service"]
+env = { RUSTFLAGS = "-C target-cpu=i686 -C target-feature=+crt-static", SOURCE_DATE_EPOCH = "1697065602" }
+
+[tasks.windows-service-arm64]
+command = "cargo"
+args = ["auditable", "build", "--release", "--locked", "--target=aarch64-pc-windows-msvc", "--features=service"]
+env = { RUSTFLAGS = "-C target-cpu=generic -C target-feature=+crt-static", SOURCE_DATE_EPOCH = "1697065602" }
+
+[tasks.bundle-license]
+command = "cargo"
+args = ["bundle-licenses", "--format=toml", "--output=target/THIRDPARTY.toml"]
+
+[tasks.build-service-x86_64]
+command = "cargo"
+args = ["wix", "--nocapture", "--no-build", "--target=x86_64-pc-windows-msvc"]
+dependencies = ["windows-service-x86_64", "bundle-license"]
+
+[tasks.build-service-i686]
+command = "cargo"
+args = ["wix", "--nocapture", "--no-build", "--target=i686-pc-windows-msvc"]
+dependencies = ["windows-service-i686", "bundle-license"]
+
+[tasks.build-service-arm64]
+command = "cargo"
+args = ["wix", "--nocapture", "--no-build", "--target=aarch64-pc-windows-msvc"]
+dependencies = ["windows-service-arm64", "bundle-license"]
+
+[tasks.build-installer]
+dependencies = ["build-service-x86_64", "build-service-i686"]

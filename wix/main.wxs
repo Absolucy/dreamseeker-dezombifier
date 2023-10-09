@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<!--
+	Copyright (C) 2017 Christopher R. Field.
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+-->
+<?if $(sys.BUILDARCH) = x64 or $(sys.BUILDARCH) = arm64 ?>
+<?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+<?else ?>
+<?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+<?endif ?>
+<?if $(sys.BUILDARCH) = x64 or $(sys.BUILDARCH) = arm64 ?>
+<?define PlatformSystemFolder = "System64Folder" ?>
+<?else ?>
+<?define PlatformSystemFolder = "SystemFolder" ?>
+<?endif ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+	<Product
+        Id='*'
+        Name='DreamSeeker Dezombifier'
+        UpgradeCode='79486377-fbad-46c6-95f3-c8547ecf9d66'
+        Manufacturer='Lucy'
+        Language='1033'
+        Codepage='1252'
+        Version='$(var.Version)'>
+		<Package Id='*'
+            Keywords='Installer'
+            Description='A service for purging zombie DreamSeeker processes.'
+            Manufacturer='Lucy'
+            InstallerVersion='450'
+            Languages='1033'
+            Compressed='yes'
+            InstallScope='perMachine'
+            SummaryCodepage='1252'
+            />
+		<MajorUpgrade
+            Schedule='afterInstallInitialize'
+            DowngradeErrorMessage='A newer version of [ProductName] is already installed. Setup will now exit.'/>
+		<Media Id='1' Cabinet='media1.cab' EmbedCab='yes' DiskPrompt='CD-ROM #1'/>
+		<Property Id='DiskPrompt' Value='DreamSeeker Dezombifier Installation'/>
+		<Directory Id='TARGETDIR' Name='SourceDir'>
+			<Directory Id='$(var.PlatformProgramFilesFolder)' Name='PFiles'>
+				<Directory Id='APPLICATIONFOLDER' Name='DreamSeeker Dezombifier'>
+					<Component Id='binary0' Guid='f8f0b613-f9f3-40b7-97f1-49dd6b95f02b'>
+						<File
+                                Id='exe0'
+                                Name='dreamseeker-dezombifier.exe'
+                                DiskId='1'
+                                Source='$(var.CargoTargetBinDir)\dreamseeker-dezombifier.exe'
+                                KeyPath='yes'/>
+						<File Id='thirdparty0' Name='THIRDPARTY.toml' DiskId='1' Source='$(var.CargoTargetDir)\THIRDPARTY.toml'/>
+						<ServiceInstall
+                                Id="ServiceInstaller"
+                                Type="ownProcess"
+                                Vital="yes"
+                                Name="dreamseeker-dezombifier"
+                                DisplayName="DreamSeeker Dezombifier Service"
+                                Description="Service for purging zombie DreamSeeker processes."
+                                Start="auto"
+                                ErrorControl="critical"
+                                Interactive="no">
+                            </ServiceInstall>
+						<ServiceControl
+                                Id="StartService"
+                                Start="install"
+                                Stop="both"
+                                Remove="uninstall"
+                                Name="dreamseeker-dezombifier"
+                                Wait="no"/>
+						<util:EventSource Log="Application" Name="DreamSeeker Dezombifier" EventMessageFile="[APPLICATIONFOLDER]\dreamseeker-dezombifier.exe" />
+					</Component>
+					<Component Id='pdb0' Guid='c563ed41-6123-4d44-9bd8-e01daafd7f87'>
+						<File Id='pdb' Name='dreamseeker-dezombifier.pdb' DiskId='1' Source='$(var.CargoTargetBinDir)\dreamseeker_dezombifier.pdb'/>
+					</Component>
+				</Directory>
+			</Directory>
+		</Directory>
+		<Feature
+            Id='Binaries'
+            Title='Application'
+            Description='Installs all binaries and the license.'
+            Level='1'
+            ConfigurableDirectory='APPLICATIONFOLDER'
+            AllowAdvertise='no'
+            Display='expand'
+            Absent='disallow'>
+			<ComponentRef Id='binary0'/>
+			<Feature Id='DebugSymbols' Title='Debug Symbols' Description='Installs the .pdb debug symbols for the application.' Level='1000' Absent='allow'>
+				<ComponentRef Id='pdb0'/>
+			</Feature>
+		</Feature>
+		<SetProperty Id='ARPINSTALLLOCATION' Value='[APPLICATIONFOLDER]' After='CostFinalize'/>
+		<Property Id='ARPHELPLINK' Value='https://github.com/Absolucy/dreamseeker-dezombifier'/>
+		<UI>
+			<UIRef Id='WixUI_FeatureTree'/>
+			<Publish Dialog='WelcomeDlg' Control='Next' Event='NewDialog' Value='CustomizeDlg' Order='99'>1</Publish>
+			<Publish Dialog='CustomizeDlg' Control='Back' Event='NewDialog' Value='WelcomeDlg' Order='99'>1</Publish>
+		</UI>
+	</Product>
+</Wix>
