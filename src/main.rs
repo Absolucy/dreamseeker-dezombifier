@@ -12,7 +12,7 @@ mod window;
 
 use anyhow::{Context, Result};
 use crossbeam_channel::{Receiver, RecvTimeoutError};
-use log::{debug, error, info};
+use log::{error, info};
 use std::time::Duration;
 use windows::Win32::System::{
 	ProcessStatus::EnumProcesses,
@@ -37,15 +37,17 @@ fn main_loop(shutdown_rx: Receiver<()>) -> Result<()> {
 			}
 			let pids = &process_ids[..(bytes_returned as usize / std::mem::size_of::<u32>())];
 			for &pid in pids {
-				if let Some(process_name) = process::get_process_name(pid)? {
-					debug!("pid {pid} = {process_name}");
-					if process_name.ends_with("dreamseeker.exe")
-						&& !window::has_visible_windows(pid)?
-						&& process::mins_since_process_creation(pid)? > 5
-					{
-						info!("Terminating zombie process {}", pid);
-						process::terminate_process(pid)?;
-					}
+				let pinfo = match process::info(pid)? {
+					Some(pinfo) => pinfo,
+					None => continue,
+				};
+				if pinfo.name.ends_with("dreamseeker.exe")
+					&& pinfo.mem_usage < 26214400
+					&& pinfo.lifetime >= 3
+					&& !window::has_visible_windows(pid)?
+				{
+					info!("Terminating zombie process {}", pid);
+					process::terminate_process(pid)?;
 				}
 			}
 			match shutdown_rx.recv_timeout(INTERVAL) {
