@@ -1,12 +1,13 @@
 use anyhow::{Context, Result};
 use fastdivide::DividerU64;
+use std::sync::LazyLock;
 use windows::Win32::{
 	Foundation::FILETIME,
 	System::{SystemInformation::GetSystemTime, Time::SystemTimeToFileTime},
 };
 
-#[static_init::dynamic]
-static TIME_DIVIDER: DividerU64 = DividerU64::divide_by(60_u64 * 10_000_000_u64);
+static TIME_DIVIDER: LazyLock<DividerU64> =
+	LazyLock::new(|| DividerU64::divide_by(60_u64 * 10_000_000_u64));
 
 /// Converts a timestamp in 100ns intervals into 1 minute intervals.
 #[inline]
