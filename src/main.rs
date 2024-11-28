@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: 0BSD
 #![cfg_attr(
-	not(any(debug_assertions, feature = "service")),
+	not(debug_assertions),
 	windows_subsystem = "windows"
 )]
 

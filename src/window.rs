@@ -20,10 +20,10 @@ pub(crate) fn has_visible_windows(pid: u32) -> Result<bool> {
 			if GetWindowThreadProcessId(hwnd, Some(&mut process_id)) == 0 {
 				return TRUE;
 			}
-			let info = &mut *std::mem::transmute::<_, *mut Info>(lparam);
+			let info = &mut *std::mem::transmute::<LPARAM, *mut Info>(lparam);
 			if (process_id == info.pid as u32)
 				&& IsWindowVisible(hwnd) == TRUE
-				&& GetWindow(hwnd, GW_OWNER).0 == 0
+				&& GetWindow(hwnd, GW_OWNER).is_ok()
 			{
 				debug!("Found visible window for pid {}", info.pid);
 				info.has_visible_windows = true;

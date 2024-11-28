@@ -12,10 +12,10 @@ rust-version = "1.73.0"
 anyhow = "1"
 crossbeam-channel = "0.5"
 ctrlc = { version = "3", features = ["termination"] }
-fastdivide = "0.3"
+fastdivide = "0.4"
 static_init = "1"
 log = { version = "0.4", features = ["std"] }
-windows = { version = "0.51", features = [
+windows = { version = "0.58", features = [
 	"Win32_Foundation",
 	"Win32_System_ProcessStatus",
 	"Win32_System_SystemInformation",
@@ -25,12 +25,12 @@ windows = { version = "0.51", features = [
 ] }
 stfu8 = "0.2"
 scopeguard = "1"
-simple_logger = "4"
-eventlog = "0.2"
+simple_logger = "5"
+eventlog = "0.3"
 parking_lot = "0.12"
 
 [build-dependencies]
-embed-resource = "2"
+embed-resource = "3"
 
 [profile.release]
 lto = true
